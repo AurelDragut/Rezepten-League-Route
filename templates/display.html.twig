@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+        <h1>List</h1>
+            {% if results.items %}
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for key in results.items.0 | keys %}
+                        {% if key not in ['schnecke','nr'] %}
+                            <th scope="col">{{ key | replace({'_':' '}) | title }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in results.items %}
+                    <tr>
+                        {% for key, value in result %}
+                            {% if key not in ['schnecke','nr'] %}
+                                <td>
+                                    {% if key == 'name' %}
+                                        <a href="/{{ results.model }}/{{ result['schnecke'] }}">{{ value }}</a>
+                                    {% elseif key == 'bild' %}
+                                        <img src="{{ value }}" width="120px" alt="" />
+                                    {% elseif key == 'password' %}
+                                        ****************
+                                    {% else %}
+                                        {% if value|length > 100 %}{{ value | split('',100) | first ~ '...' }}{% else %}{{ value }}{% endif %}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No records available</p>
+            {% endif %}
+{% endblock %}

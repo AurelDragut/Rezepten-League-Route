@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+
+    {% if post.search %}
+        <h2>Search Results for {{ search.keyword }}</h2>
+        {% if content %}
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for key in content.0 | keys %}
+                        {% if key != 'schnecke' %}
+                            <th scope="col">{{ key | replace({'_':' '}) | title }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in content %}
+                    <tr>
+                        {% for key, value in result %}
+                            {% if key != 'schnecke' %}
+                                <td {% if loop.index == '1' %}scope="row"{% endif %}>
+                                    {% if key == 'nr' %}
+                                        {{ loop.parent.loop.index }}
+                                    {% elseif key == 'name' %}
+                                        <a href="/recipes/{{ result['schnecke'] }}">{{ value }}</a>
+                                    {% elseif key == 'bild' %}
+                                        <img src="{{ value }}" width="120px" alt=""/>
+                                    {% elseif key == 'vorbereitung_anweisungen' %}
+                                        {{ value | split('',30) | first ~ '...' }}
+                                    {% elseif key == 'password' %}
+                                        ****************
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No records available</p>
+        {% endif %}
+    {% endif %}
+    <div class="container">
+        <h1>Formular</h1>
+        <form action="" method="post" id="advanced-search">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Keyword:</span>
+                </div>
+                <input type="text" class="form-control" name="keyword" value="{{ search.keyword }}"/>
+            </div>
+            {% if formular.portionsnummern %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Portions Number:</span>
+                    </div>
+                    {% for portion_nummer in formular.portionsnummern %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="portionsnummern"
+                                   id="portion_number{{ portion_nummer.portionsnummern }}"
+                                    {% if portion_nummer.portionsnummern == search.portionsnummern %} checked {% endif %}
+                                   value="{{ portion_nummer.portionsnummern }}">
+                            <label class="form-check-label"
+                                   for="portion_number{{ portion_nummer.portionsnummern }}">{{ portion_nummer.portionsnummern }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if formular.vorbereitungszeit %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Preparation time:</span>
+                    </div>
+                    {% for vorbereitungszeit in formular.vorbereitungszeit %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="vorbereitungszeit"
+                                   id="portion_number{{ vorbereitungszeit.vorbereitungszeit }}"
+                                    {% if vorbereitungszeit.vorbereitungszeit == search.vorbereitungszeit %} checked {% endif %}
+                                   value="{{ vorbereitungszeit.vorbereitungszeit }}">
+                            <label class="form-check-label"
+                                   for="portion_number{{ vorbereitungszeit.vorbereitungszeit }}">{{ vorbereitungszeit.vorbereitungszeit }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if formular.vorbereitung_schwierigkeit %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Preparation difficulty:</span>
+                    </div>
+                    {% for vorbereitung_schwierigkeit in formular.vorbereitung_schwierigkeit %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="vorbereitung_schwierigkeit"
+                                   id="portion_number{{ vorbereitung_schwierigkeit.vorbereitung_schwierigkeit }}"
+                                    {% if vorbereitung_schwierigkeit.vorbereitung_schwierigkeit == search.vorbereitung_schwierigkeit %} checked {% endif %}
+                                   value="{{ vorbereitung_schwierigkeit.vorbereitung_schwierigkeit }}">
+                            <label class="form-check-label"
+                                   for="portion_number{{ vorbereitung_schwierigkeit.vorbereitung_schwierigkeit }}">{{ vorbereitung_schwierigkeit.vorbereitung_schwierigkeit }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if formular.zutaten %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Zutaten:</span>
+                    </div>
+                    {% for ingredient in formular.zutaten %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="ingredient"
+                                   id="{{ ingredient }}"
+                                    {% if ingredient == search.ingredient %} checked {% endif %}
+                                   value="{{ ingredient }}">
+                            <label class="form-check-label"
+                                   for="{{ ingredient }}">{{ ingredient }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <input type="submit" class="btn btn-primary btn-lg btn-block" name="search" value="Search"/>
+            <input type="reset" class="btn btn-primary btn-lg btn-block" name="reset" onclick="document.forms[0].reset();" value="Reset"/>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Rezepte</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="/">Rezepte</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+            {% for link in menuItems %}
+                {% if link.children %}
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{{ link.link }}" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ link.name }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% for item in link.children %}
+                                <a class="dropdown-item" href="{{ item.link }}">{{ item.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ link.link }}">{{ link.name }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            {% if cookie['logged_in'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Abmeldung</a>
+                </li>
+            {% else %}
+                <li>
+                    <a class="nav-link" href="/login">Anmeldung</a>
+                </li>
+            {% endif %}
+        </ul>
+        <form action="/search" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" name="search" placeholder="Search Recipe"
+                   aria-label="Search">
+            <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search"/>
+            <a href="/advanced-search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="button">Adv. Search</button>
+            </a>
+        </form>
+    </div>
+</nav>
+
+<main role="main">
+
+    <div class="container main-content">
+        <!-- Example row of columns -->
+        {% block content %}{% endblock %}
+
+    </div> <!-- /container -->
+
+</main>
+
+<footer class="blog-footer">
+    <p>Copyright &copy; 2020. <a href="/">Rezepten</a></p>
+    <p>
+        <a href="#">Back to top</a>
+    </p>
+</footer>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

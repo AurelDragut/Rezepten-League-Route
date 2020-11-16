@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Formular</h1>
+        <form action="{{ formular.action }}" method="post" enctype="multipart/form-data">
+            {% for field in formular.fields %}
+                {% if field.Type == 'textarea' %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"
+                                  id="basic-addon1">{{ field.Field | replace({'_':' '}) | title }}</span>
+                        </div>
+                        <textarea name="{{ field.Field }}" id="validation{{ field.Field }}"
+                                  aria-describedby="validation{{ field.Field }}Feedback" rows="5" cols="60"
+                                  class="form-control {% if formular.errors[field.Field] %}is-invalid{% endif %}"
+                                  style="width: 75%">{% if post[field.Field] %}{{ post[field.Field] }}{% elseif formular.inhalt[field.Field] %}{{ formular.inhalt[field.Field] }}{% endif %}</textarea>
+                        {% if field.Field == 'zutaten' %}
+                            <small id="passwordHelpBlock" class="form-text text-muted">
+                                Hinweis: Schreiben Sie die Zutaten in diesem Format: Mengenangaben #1 - Zutatenangaben
+                                #1, Mengenangaben #2 - Zutatenangaben #2, ... z.B. 200ml - Milch, 200g - Zucker, ...
+                            </small>
+                        {% endif %}
+                        <div id="validation{{ field.Field }}
+                        Feedback" class="invalid-feedback">
+                            {{ formular.errors[field.Field][0] }}
+                        </div>
+                    </div>
+                {% elseif field.Field == 'schnecke' %}
+                    <input type="hidden" name="{{ field.Field }}" id="validation{{ field.Field }}"
+                           aria-describedby="validation{{ field.Field }}Feedback"
+                           value="{% if formular.inhalt[field.Field] %}{{ formular.inhalt[field.Field] }}{% endif %}"
+                           placeholder="">
+                {% elseif field.Type == 'select' %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"
+                                  id="basic-addon1">{{ field.Field | replace({'_':' '}) | title }}</span>
+                        </div>
+                        <select class="custom-select {% if formular.errors[field.Field] %}is-invalid{% endif %}"
+                                name="{{ field.Field }}" id="validation{{ field.Field }}"
+                                aria-describedby="validation{{ field.Field }}Feedback">
+                            <option value="0">No parent</option>
+                            {% for key,value in field.Values %}
+                                <option value="{{ value.nr }}" {% if formular.inhalt.parent == value.nr %} selected {% endif %}>{{ value.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div id="validation{{ field.Field }}
+                        Feedback" class="invalid-feedback">{{ formular.errors[field.Field][0] }}</div>
+                    </div>
+                {% else %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"
+                                  id="basic-addon1">{{ field.Field | replace({'_':' '}) | title }}</span>
+                        </div>
+                        <input type="{{ field.Type }}"
+                               class="form-control {% if formular.errors[field.Field] %}is-invalid{% endif %}"
+                               name="{{ field.Field }}"
+                               value="{% if post[field.Field] %}{{ post[field.Field] }}{% elseif formular.inhalt[field.Field] and field.Field != 'password' %}{{ formular.inhalt[field.Field] }}{% endif %}"/>
+                        {% if field.Type == 'file' %}<img src="{{ formular.inhalt[field.Field] }}" alt="" width="240" />{% endif %}
+                        <div id="validation{{ field.Field }}Feedback" class="invalid-feedback">{{ formular.errors[field.Field][0] }}</div>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+            <input type="submit" class="btn btn-primary btn-lg btn-block" value="Send"/>
+        </form>
+
+    </div>
+{% endblock %}

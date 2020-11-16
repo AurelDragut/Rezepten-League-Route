@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <h2>List</h2>
+    {% if results.items %}
+        <table class="table">
+            <thead>
+            <tr>
+                {% for key in results.items.0 | keys %}
+                    <th scope="col">{{ key | replace({'_':' '}) | title }}</th>
+                {% endfor %}
+                <th scope="col">Operationen</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for result in results.items %}
+                <tr>
+                    {% for key, value in result %}
+                        <td {% if loop.index == '1' %}scope="row"{% endif %}>
+                            {% if key == 'bild' %}
+                                <img src="{{ value }}" width="120px" alt=""/>
+                            {% elseif key == 'password' %}
+                                ****************
+                            {% else %}
+                                {% if value|length > 100 %}{{ value | split('',100) | first ~ '...' }}{% else %}{{ value }}{% endif %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                    <td><a href="/admin/{{ results.model }}/read/{{ result['nr'] }}">
+                            <img src="/img/icons/read.png" width="40" alt="" />
+                        </a>
+                        <a href="/admin/{{ results.model }}/edit/{{ result['nr'] }}">
+                            <img src="/img/icons/update.png" width="40" alt="" />
+                        </a>
+                        <a href="/admin/{{ results.model }}/delete/{{ result['nr'] }}">
+                            <img src="/img/icons/delete.png" width="40" alt="" />
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No records available</p>
+    {% endif %}
+{% endblock %}

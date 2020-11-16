@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <h1>{{ result.items.name }}</h1>
+    <table class="table">
+        {% for field, value in result.items %}
+            {% if field not in ['nr', 'schnecke','name'] %}
+                <tr>
+                    <td><strong>{{ field | replace({'_':' '}) | title }}</strong></td>
+                    <td colspan="2">
+                        {% if field == 'bild' %}
+                            <img src="{{ value }}" alt="" style="width: 100%" />
+                        {% else %}
+                            {{ value | nl2br }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        {% if result.relations %}
+            {% for relation, values in result.relations %}
+                {% for key, value in values %}
+                    <tr>
+                    {% if loop.index == 1 %}
+                        <td rowspan="{{ values|length }}"><strong>{{ relation | title }}</strong></td>
+                        <td align="right">{{ value.amount | trim }}</td>
+                        <td>{{ value.name }}</td>
+                    {% else %}
+                        <td align="right">{{ value.amount | trim }}</td>
+                        <td>{{ value.name }}</td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </table>
+{% endblock %}

@@ -1,0 +1,23 @@
+.main-content {
+    margin-top: 100px !important;
+}
+
+.input-group-prepend {
+    width: 25% !important;
+}
+
+.input-group-text {
+    width: 100% !important;
+}
+
+.blog-footer {
+    padding: 2.5rem 0;
+    color: #999;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-top: .05rem solid #e5e5e5;
+}
+
+body, .form-control, .btn, .dropdown-menu, .input-group-text {
+    font-size: 0.8rem !important;
+}
