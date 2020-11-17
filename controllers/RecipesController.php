@@ -425,12 +425,12 @@ class RecipesController implements Controllable
      *
      * @return string
      */
-    public function advancedSearch():string {
+    public function advancedSearch(ServerRequestInterface $request) : ResponseInterface
+    {
         $content = [];
         $search = [];
-        if (isset($_POST['search'])) {
-
-            foreach ($_POST as $key => $value) {
+        if (isset($request->getParsedBody()['search'])) {
+            foreach ($request->getParsedBody() as $key => $value) {
                 $search[$key] = $value;
             }
 
@@ -469,7 +469,12 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
             $formular['zutaten'][] = $result['name'];
         }
 
-        return View::render('advanced-search.html.twig', ['content' => $content, 'formular' => $formular, 'search' => $search]);
+        $body = View::render('advanced-search.html.twig',
+            ['content' => $content, 'formular' => $formular, 'search' => $search]);
+        $response = new Response;
+
+        $response->getBody()->write($body);
+        return $response->withStatus(200);
     }
 
     /**
@@ -477,13 +482,18 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
      *
      * @return string
      */
-    public function search():string {
+    public function search(ServerRequestInterface $request) : ResponseInterface
+    {
         $content = [];
-        if (isset($_GET['search'])) {
-            $search = "%".$_GET['search']."%";
+        if (isset($request->getQueryParams()['search'])) {
+            $search = "%".$request->getQueryParams()['search']."%";
             $sql = "select `$this->table`.* from `$this->table` join `ingredients_recipes` on `$this->table`.`nr` = `ingredients_recipes`.`recipe_nr` join `ingredients` on `ingredients_recipes`.`ingredient_nr` = `ingredients`.`Nr` where `$this->table`.`name` like ? or `vorbereitung_anweisungen` like ? or `amount` like ? or `ingredients`.`name` like ? group by `$this->table`.`name`";
             $content = Database::getInstance()->MultiSelect($sql,[$search, $search, $search, $search]);
         }
-        return View::render('search.html.twig', ['content' => $content]);
+        $body = View::render('search.html.twig', ['content' => $content]);
+        $response = new Response;
+
+        $response->getBody()->write($body);
+        return $response->withStatus(200);
     }
 }
