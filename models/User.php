@@ -108,7 +108,7 @@ class User extends Model implements Modelable
         header('Location:/admin/users/index');
     }
 
-    public static function login($login) {
+    public function login($login) {
         $query = "select * from `users` where `email` = ?";
         $user = Database::getInstance()->Select($query, [$login['email']], self::class);
         if (password_verify($login['password'], $user->password)) {

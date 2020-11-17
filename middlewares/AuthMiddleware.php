@@ -13,7 +13,7 @@ class AuthMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
-        if (UsersController::checkLoginCookie() !== false) return $handler->handle($request);
+        if ((new UsersController)->checkLoginCookie() !== false) return $handler->handle($request);
         return new RedirectResponse('/login');
     }
 }

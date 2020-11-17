@@ -19,8 +19,6 @@ class UsersController implements Controllable
 
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $result = [];
         $object = [];
         $objects_list = User::getInstance()->all($this->table)->get($this->model);
@@ -48,7 +46,7 @@ class UsersController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body = View::render('index.html.twig', ['results' => $result]);
+        $body = View::getInstance()->render('index.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -82,7 +80,7 @@ class UsersController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body = View::render('display.html.twig', ['results' => $result]);
+        $body = View::getInstance()->render('display.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -131,7 +129,7 @@ class UsersController implements Controllable
             die();
         }
 
-        $body = View::render('read.html.twig', ['result' => $results]);
+        $body = View::getInstance()->render('read.html.twig', ['result' => $results]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -140,8 +138,6 @@ class UsersController implements Controllable
 
     public function create(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $request_uri = parse_url($_SERVER['REQUEST_URI']);
         $action = str_replace('create', 'save', rawurldecode($request_uri['path']));
         $formular['fields'] = $this->formFields();
@@ -149,7 +145,7 @@ class UsersController implements Controllable
         $formular['action'] = $action;
         if (isset($errors)) $formular['errors'] = $errors;
 
-        $body = View::render('formular.html.twig', ['formular' => $formular]);
+        $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -158,8 +154,6 @@ class UsersController implements Controllable
 
     public function edit(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $table_fields = $this->formFields();
 
@@ -184,7 +178,7 @@ class UsersController implements Controllable
 
         if (isset($errors))$formular['errors'] = $errors;
 
-        $body = View::render('formular.html.twig', ['formular' => $formular]);
+        $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -235,8 +229,6 @@ class UsersController implements Controllable
 
     public function delete(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $object = User::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
         $stmt = $object->delete();
@@ -321,19 +313,19 @@ class UsersController implements Controllable
 	<button type="submit" class="btn btn-primary" name="login">Submit</button>
 </form>';
 
-        $body = View::render('blank.html.twig', ['content' => $content]);
+        $body = View::getInstance()->render('blank.html.twig', ['content' => $content]);
         $response = new Response;
 
         $response->getBody()->write($body);
         return $response->withStatus(200);
     }
 
-    public static function logout() {
+    public function logout() {
         setcookie('logged_in',false, time()-3600,'/');
         setcookie('cookie_lifetime', false, time()-3600,'/');
         header('Location:/');
     }
-    public static function checkLoginCookie(): bool
+    public function checkLoginCookie(): bool
     {
         if (isset($_COOKIE['logged_in'])) {
             setcookie('cookie_lifetime', $_COOKIE['cookie_lifetime'], $_COOKIE['cookie_lifetime'], '/');

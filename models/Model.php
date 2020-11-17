@@ -6,7 +6,8 @@ use App\Classes\PDO\Database;
 
 abstract class Model
 {
-    public static array $arguments;
+    protected string $statement;
+    protected array $parameters;
     public const RULE_REQUIRED = 'required';
     public const RULE_EMAIL = 'email';
     public const RULE_MIN = 'min';
@@ -80,7 +81,7 @@ abstract class Model
     public function belongsTo($class, $relation_table)
     {
         $query = "SELECT name from $relation_table WHERE nr= ?";
-        return Database::getInstance()->Select($query, [$this->parent], get_class($class));
+        return Database::getInstance()->Select($query, [$this->parent], $class);
     }
 
     public function hasMany($class, $relation_table, $relation_field):array
@@ -115,8 +116,8 @@ abstract class Model
     public function all($table, $fields = []):object
     {
         if (count($fields) > 0) $fieldsList = implode(',',$fields); else $fieldsList = '*';
-        self::$arguments['sql'] = "select $fieldsList from $table";
-        self::$arguments['params'] = [];
+        $this->setStatement("select $fieldsList from $table");
+        $this->setParameters([]);
         return $this;
     }
 
@@ -125,21 +126,22 @@ abstract class Model
         $items = [];
         foreach ($params as $param) {
             $item = explode(' ',$param);
-            self::$arguments['params'][] = $item[2];
+            $arguments['params'][] = $item[2];
+            $this->setParameters($arguments['params']);
             $item[2] = '?';
             $items[] = implode(' ',$item);
         }
-        /** @var string $this */
-        self::$arguments['sql'] .= ' WHERE ' . implode($separator, $items)." ";
+        $statement = $this->getStatement() . ' WHERE ' . implode($separator, $items)." ";
+        $this->setStatement($statement);
         return $this;
     }
 
     public function get($class = '') {
-        return Database::getInstance()->MultiSelect(self::$arguments['sql'], @self::$arguments['params'], $class);
+        return Database::getInstance()->MultiSelect($this->getStatement(), $this->getParameters(), $class);
     }
 
     public function first($class = '') {
-        return Database::getInstance()->Select(self::$arguments['sql'], @self::$arguments['params'], $class);
+        return Database::getInstance()->Select($this->getStatement(), $this->getParameters(), $class);
     }
 
     public function setRelations(): object
@@ -212,5 +214,37 @@ abstract class Model
                 Database::getInstance()->Remove($sql, $names);
             }
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatement(): string
+    {
+        return $this->statement;
+    }
+
+    /**
+     * @param string $statement
+     */
+    public function setStatement(string $statement): void
+    {
+        $this->statement = $statement;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @param array $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
     }
 }

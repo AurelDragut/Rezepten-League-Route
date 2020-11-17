@@ -13,7 +13,6 @@ class Recipe extends Model implements Modelable
     public static object $_instance;
     protected int $nr;
     public string $name;
-    public static array $arguments;
 
     public function related_zutaten_list(): array
     {

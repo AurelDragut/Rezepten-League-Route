@@ -16,8 +16,6 @@ class LinksController implements Controllable
 
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $result = [];
         $objects_list = Link::getInstance()->all($this->table)->get($this->model);
         foreach ($objects_list as $object_list) {
@@ -44,7 +42,7 @@ class LinksController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body = View::render('index.html.twig', ['results' => $result]);
+        $body = View::getInstance()->render('index.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -77,7 +75,7 @@ class LinksController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body = View::render('display.html.twig', ['results' => $result]);
+        $body = View::getInstance()->render('display.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -126,7 +124,7 @@ class LinksController implements Controllable
             die();
         }
 
-        $body = View::render('read.html.twig', ['result' => $results]);
+        $body = View::getInstance()->render('read.html.twig', ['result' => $results]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -135,8 +133,6 @@ class LinksController implements Controllable
 
     public function create(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $request_uri = parse_url($_SERVER['REQUEST_URI']);
         $action = str_replace('create', 'save', rawurldecode($request_uri['path']));
         $formular['fields'] = $this->formFields();
@@ -144,7 +140,7 @@ class LinksController implements Controllable
         $formular['action'] = $action;
         if (isset($errors)) $formular['errors'] = $errors;
 
-        $body = View::render('formular.html.twig', ['formular' => $formular]);
+        $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -153,8 +149,6 @@ class LinksController implements Controllable
 
     public function edit(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $table_fields = $this->formFields();
         $object = Link::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
@@ -178,7 +172,7 @@ class LinksController implements Controllable
 
         if (isset($errors)) $formular['errors'] = $errors;
 
-        $body = View::render('formular.html.twig', ['formular' => $formular]);
+        $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -228,8 +222,6 @@ class LinksController implements Controllable
 
     public function delete(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $object = Link::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
         $stmt = $object->delete();

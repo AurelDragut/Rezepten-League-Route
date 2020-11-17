@@ -24,8 +24,6 @@ class RecipesController implements Controllable
      */
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $result = [];
         $object = [];
         $objects_list = Recipe::getInstance()->all($this->table)->get($this->model);
@@ -60,7 +58,7 @@ class RecipesController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body     = View::render('index.html.twig', ['results' => $result]);
+        $body     = View::getInstance()->render('index.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -103,7 +101,7 @@ class RecipesController implements Controllable
         }
         $result['model'] = $this->table;
 
-        $body     = View::render('display.html.twig', ['results' => $result]);
+        $body     = View::getInstance()->render('display.html.twig', ['results' => $result]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -160,7 +158,7 @@ class RecipesController implements Controllable
             die();
         }
 
-        $body     = View::render('read.html.twig', ['result' => $results]);
+        $body     = View::getInstance()->render('read.html.twig', ['result' => $results]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -176,8 +174,6 @@ class RecipesController implements Controllable
      */
     public function create(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $request_uri = parse_url($_SERVER['REQUEST_URI']);
         $action = str_replace('create', 'save', rawurldecode($request_uri['path']));
         $formular['fields'] = $this->formFields();
@@ -185,7 +181,7 @@ class RecipesController implements Controllable
         $formular['action'] = $action;
         if (isset($errors)) $formular['errors'] = $errors;
 
-        $body     = View::render('formular.html.twig', ['formular' => $formular]);
+        $body     = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -254,8 +250,6 @@ class RecipesController implements Controllable
      */
     public function edit(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $table_fields = $this->formFields();
 
@@ -280,7 +274,7 @@ class RecipesController implements Controllable
 
         if (isset($errors)) $formular['errors'] = $errors;
 
-        $body = View::render('formular.html.twig', ['formular' => $formular]);
+        $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -365,8 +359,6 @@ class RecipesController implements Controllable
      */
     public function delete(ServerRequestInterface $request) : ResponseInterface
     {
-        $_SESSION['referer'] = $_SERVER['REQUEST_URI'];
-        UsersController::checkLoginCookie();
         $nr = $request->getAttribute('id');
         $object = Recipe::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
         $stmt = $object->delete();
@@ -469,7 +461,7 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
             $formular['zutaten'][] = $result['name'];
         }
 
-        $body = View::render('advanced-search.html.twig',
+        $body = View::getInstance()->render('advanced-search.html.twig',
             ['content' => $content, 'formular' => $formular, 'search' => $search]);
         $response = new Response;
 
@@ -490,7 +482,7 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
             $sql = "select `$this->table`.* from `$this->table` join `ingredients_recipes` on `$this->table`.`nr` = `ingredients_recipes`.`recipe_nr` join `ingredients` on `ingredients_recipes`.`ingredient_nr` = `ingredients`.`Nr` where `$this->table`.`name` like ? or `vorbereitung_anweisungen` like ? or `amount` like ? or `ingredients`.`name` like ? group by `$this->table`.`name`";
             $content = Database::getInstance()->MultiSelect($sql,[$search, $search, $search, $search]);
         }
-        $body = View::render('search.html.twig', ['content' => $content]);
+        $body = View::getInstance()->render('search.html.twig', ['content' => $content]);
         $response = new Response;
 
         $response->getBody()->write($body);

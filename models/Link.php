@@ -22,7 +22,7 @@ class Link extends Model implements Modelable
 
     public function parent(): string
     {
-        $parent = $this->belongsTo($this, self::TABLE);
+        $parent = $this->belongsTo(get_class($this), self::TABLE);
         return $parent->name ?? 'N/A';
     }
 
