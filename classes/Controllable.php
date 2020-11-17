@@ -24,6 +24,4 @@ interface Controllable
     public function update(ServerRequestInterface $request) : ResponseInterface;
 
     public function delete(ServerRequestInterface $request) : ResponseInterface;
-
-    public function sanitizeValues();
 }

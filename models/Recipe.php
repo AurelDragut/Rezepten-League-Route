@@ -67,53 +67,37 @@ class Recipe extends Model implements Modelable
 
     public function save(): int
     {
-        $keys = [];
-        $values = [];
-        foreach ($this as $key => $value) {
+        $this->schnecke = str_replace(' ', '-', strtolower($this->name));
+        $this->schnecke = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $this->schnecke);
+        $this->schnecke = preg_replace('/[^A-Za-z0-9\-]/', '', $this->schnecke);
+        foreach ($this as $key => &$value) {
             if (in_array($key, Recipe::FILLABLE)) {
                 if (method_exists($this, 'related_' . $key . '_list')) {
-                    continue;
+                    unset($this->$key);
                 } else {
-                    if ($key == 'confirm_password') {
-                        continue;
-                    } else {
-                        $keys[] = $key;
-                        if ($key == 'password') $value = password_hash($value, PASSWORD_BCRYPT);
-                        $values[] = $value;
-                    }
+                    $keys[] = $key;
+                    $values[] = "'".$value."'";
                 }
             }
         }
-        $values = array_map(function ($m) {
-            return '\'' . $m . '\'';
-        }, $values);
         $sql = "INSERT INTO recipes (" . implode(', ', $keys) . ") VALUE (" . implode(', ', $values) . ")";
         return Database::getInstance()->Insert($sql);
     }
 
     public function update():int
     {
-        $keys = [];
-        $values = [];
+        $this->schnecke = str_replace(' ', '-', strtolower($this->name));
+        $this->schnecke = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $this->schnecke);
+        $this->schnecke = preg_replace('/[^A-Za-z0-9\-]/', '', $this->schnecke);
+        $key_values = [];
         foreach ($this as $key => $value) {
             if (in_array($key, Recipe::FILLABLE)) {
                 if (method_exists($this, 'related_' . $key . '_list')) {
                     unset($this->$key);
                 } else {
-                    if ($key == 'confirm_password') {
-                        continue;
-                    } else {
-                        $keys[] = $key;
-                        if ($key == 'password') $value = password_hash($value, PASSWORD_BCRYPT);
-                        $values[] = $value;
-                    }
+                    $key_values[] = "`$key` = '$value'";
                 }
             }
-        }
-        $query_values = array_combine($keys, $values);
-        $key_values = [];
-        foreach ($query_values as $key => $value) {
-            $key_values[] = "`$key` = '$value'";
         }
         $sql = "UPDATE `recipes` SET " . implode(', ', $key_values) . " WHERE `nr` = '$this->nr' ";
         Database::getInstance()->Update($sql);
@@ -122,11 +106,9 @@ class Recipe extends Model implements Modelable
 
     public function delete()
     {
-        if (in_array('bild', Recipe::FILLABLE)) {
-            $sql = "SELECT `bild` from recipes where `nr` = ?";
-            $object = Database::getInstance()->Select($sql, [$this->nr], get_class($this));
-            unlink($_SERVER['DOCUMENT_ROOT'] . '/public' . $object->bild);
-        }
+        $sql = "SELECT `bild` from recipes where `nr` = ?";
+        $object = Database::getInstance()->Select($sql, [$this->nr], get_class($this));
+        unlink($_SERVER['DOCUMENT_ROOT'] . $object->bild);
         $this->deleteRelationsValues();
         $query = "DELETE FROM recipes WHERE nr= ?";
         Database::getInstance()->Remove($query, [$this->nr]);

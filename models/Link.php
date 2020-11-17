@@ -55,10 +55,6 @@ class Link extends Model implements Modelable
             if ($parent == 0) $items[(int)$nr] = $menu_item; else $items[(int)$parent]['children'][] = $menu_item;
         }
         return $items;
-        /*foreach ($menu_items as $key => &$menu_item) {
-            $menu_item['children'] = self::getMenu($menu_item['nr']);
-        }
-        return $menu_items;*/
     }
 
     public function fill($data)

@@ -61,13 +61,8 @@ class Ingredient extends Model implements Modelable
                 if (method_exists($this, 'related_' . $key . '_list')) {
                     continue;
                 } else {
-                    if ($key == 'confirm_password') {
-                        continue;
-                    } else {
-                        $keys[] = $key;
-                        if ($key == 'password') $value = password_hash($value, PASSWORD_BCRYPT);
-                        $values[] = $value;
-                    }
+                    $keys[] = $key;
+                    $values[] = $value;
                 }
             }
         }

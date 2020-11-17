@@ -296,7 +296,7 @@ class RecipesController implements Controllable
      */
     public function save(ServerRequestInterface $request) : ResponseInterface
     {
-        $data = $this->sanitizeValues();
+        $data = $request->getParsedBody();
         $object = new Recipe();
         $object->fill($data);
 
@@ -332,7 +332,7 @@ class RecipesController implements Controllable
     public function update(ServerRequestInterface $request) : ResponseInterface
     {
         $nr = $request->getAttribute('id');
-        $data = $this->sanitizeValues();
+        $data = $request->getParsedBody();
         $object = Recipe::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
         $object->fill($data);
         $object->setRelations($object);
@@ -371,34 +371,6 @@ class RecipesController implements Controllable
         $object = Recipe::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
         $stmt = $object->delete();
         return new RedirectResponse('/admin/recipes/index');
-    }
-
-    /**
-     * Sanitizes POST values.
-     *
-     * @return array
-     */
-    public function sanitizeValues():array
-    {
-        $relations = [];
-        $object = [];
-        foreach ($_POST as $key => $value) {
-            if (in_array($key, Recipe::FILLABLE)) {
-                if (method_exists($this->model, 'related_' . $key . '_list')) {
-                    $relations[$key] = $value;
-                    $object[$key] = $value;
-                }
-                if (in_array($key, array('password', 'confirm_password'))) $object[$key] = $value;
-                else
-                    $object[$key] = $value;
-            }
-        }
-        if (in_array('schnecke', Recipe::FILLABLE)) {
-            $object['schnecke'] = str_replace(' ', '-', strtolower($object['name']));
-            $object['schnecke'] = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö','ß'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe','ss'], $object['schnecke']);
-            $object['schnecke'] = preg_replace('/[^A-Za-z0-9\-]/', '', $object['schnecke']);
-        }
-        return $object;
     }
 
     /**
