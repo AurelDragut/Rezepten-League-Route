@@ -293,8 +293,7 @@ class UsersController implements Controllable
                 }
             }
             $login['password'] = $_POST['password'];
-            $_SESSION['referer'] = $_SESSION['referer'] ?? '/';
-            User::login($login);
+            (new User)->login($login);
         }
         $content = '<form method="post">
 	<div class="form-group">

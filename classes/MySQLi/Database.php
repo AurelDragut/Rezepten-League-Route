@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Classes\MySQLi;
 
 use App\Classes\DatabaseConnectable;
@@ -30,6 +31,40 @@ class Database implements DatabaseConnectable
             echo "Failed to connect to MySQL: " . $this->connection->connect_error;
         }
         $this->executeStatement('SET NAMES utf8');
+    }
+
+    public function executeStatement($statement = "", $parameters = [])
+    {
+        if (!($stmt = $this->connection->prepare($statement))) {
+            echo "Prepare failed: (" . $this->connection->errno . ") " . $this->connection->error;
+        }
+
+        if (count($parameters) > 0) {
+            $type = '';
+            foreach ($parameters as $key => &$value) {
+                switch (gettype($value)) {
+                    case "integer":
+                        $type .= 'i';
+                        break;
+                    case "double":
+                        $type .= 'd';
+                        break;
+                    case "string":
+                        $type .= 's';
+                        break;
+                    default:
+                        $type .= 'b';
+                        break;
+                }
+            }
+            array_unshift($parameters, $type);
+            call_user_func_array(
+                array($stmt, 'bind_param'),
+                $parameters);
+        }
+        $stmt->execute();
+
+        return $stmt;
     }
 
     public static function getInstance()
@@ -117,40 +152,6 @@ class Database implements DatabaseConnectable
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-    }
-
-    public function executeStatement($statement = "", $parameters = [])
-    {
-        if (!($stmt = $this->connection->prepare($statement))) {
-            echo "Prepare failed: (" . $this->connection->errno . ") " . $this->connection->error;
-        }
-
-        if (count($parameters) > 0) {
-            $type = '';
-            foreach ($parameters as $key => &$value) {
-                switch (gettype($value)) {
-                    case "integer":
-                        $type .= 'i';
-                        break;
-                    case "double":
-                        $type .= 'd';
-                        break;
-                    case "string":
-                        $type .= 's';
-                        break;
-                    default:
-                        $type .= 'b';
-                        break;
-                }
-            }
-            array_unshift($parameters, $type);
-            call_user_func_array(
-                array($stmt, 'bind_param'),
-                $parameters);
-        }
-        $stmt->execute();
-
-        return $stmt;
     }
 
     public function lastInsertId()

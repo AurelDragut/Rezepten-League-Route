@@ -119,8 +119,8 @@ class User extends Model implements Modelable
 			}
 			setcookie('logged_in', true, $cookie_lifetime,'/');
 			setcookie('cookie_lifetime', $cookie_lifetime, $cookie_lifetime,'/');
-			$_SESSION['referer'] = $_SESSION['referer'] ?? '/';
-            return new RedirectResponse($_SESSION['referer']);
+            header('Location:/');
+            die();
         } else {
             return new RedirectResponse('/login');
         }
