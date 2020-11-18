@@ -10,12 +10,11 @@ use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-/**
- * @property \DI\Container container
- * @property ContainerBuilder builder
- */
 class Container
 {
+    private \DI\Container $container;
+    private ContainerBuilder $builder;
+
     public function __construct()
     {
         $this->container = new \DI\Container;
