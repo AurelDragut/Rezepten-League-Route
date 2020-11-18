@@ -86,7 +86,7 @@ class Database implements DatabaseConnectable
         }
     }
 
-    public function Select($statement = "", $parameters = [], $class = '')
+    public function Select($statement = "", $parameters = [], string $class = '')
     {
         $stmt = $this->executeStatement($statement, $parameters);
         if ($class !== '') {
@@ -102,7 +102,7 @@ class Database implements DatabaseConnectable
         return $stmt->get_result()->fetch_assoc();
     }
 
-    public function MultiSelect($statement = "", $parameters = [], $class = '')
+    public function MultiSelect($statement = "", $parameters = [], string $class = '')
     {
         try {
 

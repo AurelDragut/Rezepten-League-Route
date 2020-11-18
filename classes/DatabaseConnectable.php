@@ -7,7 +7,9 @@ interface DatabaseConnectable
 
     public function Insert($statement = "", $parameters = []);
 
-    public function Select( $statement = "" , $parameters = [], ?object $class = null);
+    public function Select( $statement = "" , $parameters = [], string $class = '');
+
+    public function MultiSelect($statement = "", $parameters = [], string $class = '');
 
     public function Update($statement = "", $parameters = []);
 
