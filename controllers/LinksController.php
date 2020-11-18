@@ -1,8 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Classes\Container;
 use App\Classes\Controllable;
-use App\Classes\PDO\Database;
 use App\Classes\View;
 use App\Models\Link;
 use Laminas\Diactoros\Response;
@@ -13,6 +13,11 @@ class LinksController implements Controllable
 {
     public string $model = Link::class;
     public string $table = 'links';
+
+    public function getDatabase() {
+        if (!isset($this->container)) $this->container = new Container();
+        return $this->container->container->get('App\Classes\DatabaseConnectable');
+    }
 
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
@@ -224,14 +229,14 @@ class LinksController implements Controllable
     {
         $nr = $request->getAttribute('id');
         $object = Link::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
-        $stmt = $object->delete();
+        $object->delete();
         return new Response\RedirectResponse('/admin/links/index');
     }
 
     public function formFields(): array
     {
         $sql = "SHOW FIELDS FROM `".Link::TABLE."`";
-        $table_fields = Database::getInstance()->MultiSelect($sql);
+        $table_fields = $this->getDatabase()->MultiSelect($sql);
 
         $fields = [];
         foreach ($table_fields as $key => $value) {

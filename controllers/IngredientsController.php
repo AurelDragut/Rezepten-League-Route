@@ -1,8 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Classes\Container;
 use App\Classes\Controllable;
-use App\Classes\PDO\Database;
 use App\Classes\View;
 use App\Models\Ingredient;
 use Laminas\Diactoros\Response;
@@ -13,6 +13,11 @@ class IngredientsController implements Controllable
 {
     public string $model = Ingredient::class;
     public string $table = 'ingredients';
+
+    public function getDatabase() {
+        if (!isset($this->container)) $this->container = new Container();
+        return $this->container->container->get('App\Classes\DatabaseConnectable');
+    }
 
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
@@ -158,7 +163,7 @@ class IngredientsController implements Controllable
     public function formFields(): array
     {
         $sql = "SHOW FIELDS FROM `".Ingredient::TABLE."`";
-        $table_fields = Database::getInstance()->MultiSelect($sql);
+        $table_fields = $this->getDatabase()->MultiSelect($sql);
 
         $fields = [];
         foreach ($table_fields as $key => $value) {

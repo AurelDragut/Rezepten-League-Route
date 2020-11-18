@@ -2,7 +2,6 @@
 namespace App\Models;
 
 use App\Classes\Modelable;
-use App\Classes\PDO\Database;
 use Laminas\Diactoros\Response\RedirectResponse;
 
 class User extends Model implements Modelable
@@ -69,7 +68,7 @@ class User extends Model implements Modelable
             return '\'' . $m . '\'';
         }, $values);
         $sql = "INSERT INTO users (" . implode(', ', $keys) . ") VALUE (" . implode(', ', $values) . ")";
-        return Database::getInstance()->Insert($sql);
+        return $this->getDatabase()->Insert($sql);
     }
 
     public function update():int
@@ -97,20 +96,20 @@ class User extends Model implements Modelable
             $key_values[] = "`$key` = '$value'";
         }
         $sql = "UPDATE users SET " . implode(', ', $key_values) . " WHERE `nr` = '$this->nr' ";
-        Database::getInstance()->Update($sql);
+        $this->getDatabase()->Update($sql);
         return $this->nr;
     }
 
     public function delete()
     {
         $query = "DELETE FROM users WHERE nr= ?";
-        Database::getInstance()->Remove($query, [$this->nr]);
+        $this->getDatabase()->Remove($query, [$this->nr]);
         header('Location:/admin/users/index');
     }
 
     public function login($login) {
         $query = "select * from `users` where `email` = ?";
-        $user = Database::getInstance()->Select($query, [$login['email']], self::class);
+        $user = $this->getDatabase()->Select($query, [$login['email']], self::class);
         if (password_verify($login['password'], $user->password)) {
             if (isset($login['keep_me_logged_in'])) {
 				$cookie_lifetime = time()+3600*24*30*12*100;

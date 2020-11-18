@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Classes\Modelable;
-use App\Classes\PDO\Database;
 
 class Link extends Model implements Modelable
 {
@@ -17,7 +16,7 @@ class Link extends Model implements Modelable
     public function read_parent_list():array
     {
         $query = 'select * from links where parent = ?';
-        return Database::getInstance()->MultiSelect($query, [0], get_class($this));
+        return $this->getDatabase()->MultiSelect($query, [0], get_class($this));
     }
 
     public function parent(): string
@@ -44,10 +43,10 @@ class Link extends Model implements Modelable
         return self::$_instance;
     }
 
-    public static function getMenu():array
+    public function getMenu():array
     {
         $query = "SELECT * from `links` order by `parent`";
-        $menu_items = Database::getInstance()->MultiSelect($query);
+        $menu_items = $this->getDatabase()->MultiSelect($query);
         $items = [];
         foreach ($menu_items as $menu_item) {
             $parent = $menu_item['parent'];
@@ -84,7 +83,7 @@ class Link extends Model implements Modelable
             return '\'' . $m . '\'';
         }, $values);
         $sql = "INSERT INTO " . self::TABLE . " (" . implode(', ', $keys) . ") VALUE (" . implode(', ', $values) . ")";
-        return Database::getInstance()->Insert($sql);
+        return $this->getDatabase()->Insert($sql);
     }
 
     public function update():int
@@ -107,14 +106,14 @@ class Link extends Model implements Modelable
             $key_values[] = "`$key` = '$value'";
         }
         $sql = "UPDATE links SET " . implode(', ', $key_values) . " WHERE `nr` = '$this->nr' ";
-        Database::getInstance()->Update($sql);
+        $this->getDatabase()->Update($sql);
         return $this->nr;
     }
 
     public function delete()
     {
         $query = "DELETE FROM links WHERE nr= ?";
-        Database::getInstance()->Remove($query, [$this->nr]);
+        $this->getDatabase()->Remove($query, [$this->nr]);
         header('Location:/admin/links/index');
     }
 

@@ -16,7 +16,7 @@ class View
         $this->twig = new Environment($loader, ['debug' => true]);
         $this->twig->addExtension(new DebugExtension());
 
-        $menu_items = Link::getMenu();
+        $menu_items = (new Link)->getMenu();
 
         $this->twig->addGlobal('cookie', $_COOKIE);
         $this->twig->addGlobal('get', $_GET);

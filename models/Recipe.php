@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Classes\Modelable;
-use App\Classes\PDO\Database;
 
 class Recipe extends Model implements Modelable
 {
@@ -80,7 +79,7 @@ class Recipe extends Model implements Modelable
             }
         }
         $sql = "INSERT INTO recipes (" . implode(', ', $keys) . ") VALUE (" . implode(', ', $values) . ")";
-        return Database::getInstance()->Insert($sql);
+        return $this->getDatabase()->Insert($sql);
     }
 
     public function update():int
@@ -99,18 +98,18 @@ class Recipe extends Model implements Modelable
             }
         }
         $sql = "UPDATE `recipes` SET " . implode(', ', $key_values) . " WHERE `nr` = '$this->nr' ";
-        Database::getInstance()->Update($sql);
+        $this->getDatabase()->Update($sql);
         return $this->nr;
     }
 
     public function delete()
     {
         $sql = "SELECT `bild` from recipes where `nr` = ?";
-        $object = Database::getInstance()->Select($sql, [$this->nr], get_class($this));
+        $object = $this->getDatabase()->Select($sql, [$this->nr], get_class($this));
         unlink($_SERVER['DOCUMENT_ROOT'] . $object->bild);
         $this->deleteRelationsValues();
         $query = "DELETE FROM recipes WHERE nr= ?";
-        Database::getInstance()->Remove($query, [$this->nr]);
+        $this->getDatabase()->Remove($query, [$this->nr]);
         header('Location:/admin/recipes/index');
     }
 }

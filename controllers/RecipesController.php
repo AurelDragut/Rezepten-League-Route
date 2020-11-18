@@ -1,8 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Classes\Container;
 use App\Classes\Controllable;
-use App\Classes\PDO\Database;
 use App\Classes\View;
 use App\Models\Recipe;
 use Laminas\Diactoros\Response;
@@ -14,6 +14,11 @@ class RecipesController implements Controllable
 {
     public string $model = Recipe::class;
     public string $table = 'recipes';
+
+    public function getDatabase() {
+        if (!isset($this->container)) $this->container = new Container();
+        return $this->container->container->get('App\Classes\DatabaseConnectable');
+    }
 
     /**
      * Display public list of the recipes.
@@ -174,7 +179,8 @@ class RecipesController implements Controllable
      */
     public function create(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
-        $request_uri = parse_url($_SERVER['REQUEST_URI']);
+        $request_uri = $request->getServerParams();
+        $request_uri = parse_url($request_uri['REQUEST_URI']);
         $action = str_replace('create', 'save', rawurldecode($request_uri['path']));
         $formular['fields'] = $this->formFields();
 
@@ -196,7 +202,7 @@ class RecipesController implements Controllable
     public function formFields(): array
     {
         $sql = "SHOW FIELDS FROM `".Recipe::TABLE."`";
-        $table_fields = Database::getInstance()->MultiSelect($sql);
+        $table_fields = $this->getDatabase()->MultiSelect($sql);
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
@@ -361,7 +367,7 @@ class RecipesController implements Controllable
     {
         $nr = $request->getAttribute('id');
         $object = Recipe::getInstance()->all($this->table)->where(["nr = $nr"])->first($this->model);
-        $stmt = $object->delete();
+        $object->delete();
         return new RedirectResponse('/admin/recipes/index');
     }
 
@@ -446,17 +452,17 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
             if (isset($search['vorbereitung_schwierigkeit'])) $params[] = $search['vorbereitung_schwierigkeit'];
             if (isset($search['ingredient'])) $params[] = $search['ingredient'];
 
-            $content = Database::getInstance()->MultiSelect($sql,$params);
+            $content = $this->getDatabase()->MultiSelect($sql,$params);
         }
 
         $formular = [];
         $fields = ['portionsnummern', 'vorbereitungszeit', 'vorbereitung_schwierigkeit'];
         foreach ($fields as $field) {
             $sql = "select distinct `$field` from `$this->table`";
-            $formular[$field] = Database::getInstance()->MultiSelect($sql);
+            $formular[$field] = $this->getDatabase()->MultiSelect($sql);
         }
         $sql = 'select `name` from `ingredients` where `nr` in (select `ingredient_nr` from ingredients_recipes)';
-        $results = Database::getInstance()->MultiSelect($sql);
+        $results = $this->getDatabase()->MultiSelect($sql);
         foreach ($results as $result) {
             $formular['zutaten'][] = $result['name'];
         }
@@ -480,7 +486,7 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
         if (isset($request->getQueryParams()['search'])) {
             $search = "%".$request->getQueryParams()['search']."%";
             $sql = "select `$this->table`.* from `$this->table` join `ingredients_recipes` on `$this->table`.`nr` = `ingredients_recipes`.`recipe_nr` join `ingredients` on `ingredients_recipes`.`ingredient_nr` = `ingredients`.`Nr` where `$this->table`.`name` like ? or `vorbereitung_anweisungen` like ? or `amount` like ? or `ingredients`.`name` like ? group by `$this->table`.`name`";
-            $content = Database::getInstance()->MultiSelect($sql,[$search, $search, $search, $search]);
+            $content = $this->getDatabase()->MultiSelect($sql,[$search, $search, $search, $search]);
         }
         $body = View::getInstance()->render('search.html.twig', ['content' => $content]);
         $response = new Response;

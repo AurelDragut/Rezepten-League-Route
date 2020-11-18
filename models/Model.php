@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Classes\PDO\Database;
+use App\Classes\Container;
 
 abstract class Model
 {
@@ -17,6 +17,12 @@ abstract class Model
     private array $relations;
     protected int $nr;
     public int $parent;
+    private Container $container;
+
+    public function getDatabase() {
+        if (!isset($this->container)) $this->container = new Container();
+        return $this->container->container->get('App\Classes\DatabaseConnectable');
+    }
 
     public function validate($method = 'create'):bool
     {
@@ -81,19 +87,19 @@ abstract class Model
     public function belongsTo($class, $relation_table)
     {
         $query = "SELECT name from $relation_table WHERE nr= ?";
-        return Database::getInstance()->Select($query, [$this->parent], $class);
+        return $this->getDatabase()->Select($query, [$this->parent], $class);
     }
 
     public function hasMany($class, $relation_table, $relation_field):array
     {
         $query = "SELECT * from `$relation_table` WHERE `" . $relation_field . "nr`='" . $this->nr . "'";
-        return Database::getInstance()->MultiSelect($query, [], $class);
+        return $this->getDatabase()->MultiSelect($query, [], $class);
     }
 
     public function belongsToMany($table, $related_table, $own_key, $related_key, $related_field, $extra_data = ''):array
     {
         $query = "SELECT `$related_field`, `$extra_data` from `$table` JOIN `$related_table` on `$related_table`.`nr` = `$table`.`$related_key` WHERE `$own_key`='" . $this->getNr() . "'";
-        return Database::getInstance()->MultiSelect($query);
+        return $this->getDatabase()->MultiSelect($query);
     }
 
     /**
@@ -137,11 +143,11 @@ abstract class Model
     }
 
     public function get($class = '') {
-        return Database::getInstance()->MultiSelect($this->getStatement(), $this->getParameters(), $class);
+        return $this->getDatabase()->MultiSelect($this->getStatement(), $this->getParameters(), $class);
     }
 
     public function first($class = '') {
-        return Database::getInstance()->Select($this->getStatement(), $this->getParameters(), $class);
+        return $this->getDatabase()->Select($this->getStatement(), $this->getParameters(), $class);
     }
 
     public function setRelations(): object
@@ -173,17 +179,17 @@ abstract class Model
                     $relation_quantity = '';
                 }
                 $sql = "select * from " . $relation['relation_table'] . " where name = ?";
-                $check_relations = Database::getInstance()->executeStatement($sql, [trim($relation_name)]);
-                if (Database::getInstance()->numRows($check_relations) > 0) {
-                    $result = Database::getInstance()->Select($sql, [trim($relation_name)]);
+                $check_relations = $this->getDatabase()->executeStatement($sql, [trim($relation_name)]);
+                if ($this->getDatabase()->numRows($check_relations) > 0) {
+                    $result = $this->getDatabase()->Select($sql, [trim($relation_name)]);
                     $relation_nr = $result['nr'];
                 } else {
                     $sql = "Insert into " . $relation['relation_table'] . " set name = ?";
-                    Database::getInstance()->Insert($sql, [trim($relation_name)]);
-                    $relation_nr = Database::getInstance()->lastInsertId();
+                    $this->getDatabase()->Insert($sql, [trim($relation_name)]);
+                    $relation_nr = $this->getDatabase()->lastInsertId();
                 }
                 $sql = "insert into `" . $relation['relations_table'] . "` (`" . $relation['own_field'] . "`, `" . $relation['relation_field'] . "`, `" . $relation['extra_data'] . "`) VALUES ('$this->nr', '$relation_nr', ?) ON DUPLICATE KEY UPDATE `" . $relation['extra_data'] . "`= ?";
-                Database::getInstance()->Insert($sql, [trim($relation_quantity), trim($relation_quantity)]);
+                $this->getDatabase()->Insert($sql, [trim($relation_quantity), trim($relation_quantity)]);
             }
         }
     }
@@ -211,7 +217,7 @@ abstract class Model
             WHERE " . $relation_pair['own_field'] . " = '$this->nr' 
             and " . $relation_pair['relation_field'] . " not in 
             (SELECT nr from " . $relation_pair['relation_table'] . " where name in ($questionMarks))";
-                Database::getInstance()->Remove($sql, $names);
+                $this->getDatabase()->Remove($sql, $names);
             }
         }
     }

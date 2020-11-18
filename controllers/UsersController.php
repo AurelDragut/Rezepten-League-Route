@@ -4,8 +4,8 @@
 namespace App\Controllers;
 
 
+use App\Classes\Container;
 use App\Classes\Controllable;
-use App\Classes\PDO\Database;
 use App\Classes\View;
 use App\Models\User;
 use Laminas\Diactoros\Response;
@@ -16,6 +16,11 @@ class UsersController implements Controllable
 {
     public string $model = User::class;
     public string $table = 'users';
+
+    public function getDatabase() {
+        if (!isset($this->container)) $this->container = new Container();
+        return $this->container->container->get('App\Classes\DatabaseConnectable');
+    }
 
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
@@ -238,7 +243,7 @@ class UsersController implements Controllable
     public function formFields(): array
     {
         $sql = "SHOW FIELDS FROM `".User::TABLE."`";
-        $table_fields = Database::getInstance()->MultiSelect($sql);
+        $table_fields = $this->getDatabase()->MultiSelect($sql);
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
@@ -286,8 +291,8 @@ class UsersController implements Controllable
     public function login(ServerRequestInterface $request) : ResponseInterface
     {
         $login = [];
-        if (isset($_POST['login'])) {
-            foreach ($_POST as $key => $value) {
+        if (isset($request->getParsedBody()['login'])) {
+            foreach ($request->getParsedBody() as $key => $value) {
                 if ($key !== 'password') {
                     $login[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
                 }
