@@ -5,6 +5,7 @@ use App\Classes\Container;
 use App\Classes\Controllable;
 use App\Classes\View;
 use App\Models\Recipe;
+use Illuminate\Support\Str;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -23,9 +24,9 @@ class RecipesController implements Controllable
     /**
      * Display public list of the recipes.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function index(ServerRequestInterface $request) : ResponseInterface
     {
@@ -72,9 +73,9 @@ class RecipesController implements Controllable
     /**
      * Display admin list of the recipes.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function display(ServerRequestInterface $request) : ResponseInterface
     {
@@ -116,9 +117,9 @@ class RecipesController implements Controllable
     /**
      * Display public/admin read page for recipe.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function read(ServerRequestInterface $request) : ResponseInterface
     {
@@ -173,9 +174,9 @@ class RecipesController implements Controllable
     /**
      * Display create form for recipes.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      * @param array $errors
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function create(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
@@ -250,9 +251,9 @@ class RecipesController implements Controllable
     /**
      * Display edit form for choosen recipe.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      * @param array $errors
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function edit(ServerRequestInterface $request, $errors = []) : ResponseInterface
     {
@@ -290,9 +291,9 @@ class RecipesController implements Controllable
     /**
      * Save a recipe
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function save(ServerRequestInterface $request) : ResponseInterface
     {
@@ -325,9 +326,9 @@ class RecipesController implements Controllable
     /**
      * Updates a recipe.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function update(ServerRequestInterface $request) : ResponseInterface
     {
@@ -359,9 +360,9 @@ class RecipesController implements Controllable
     /**
      * Deletes a recipe.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function delete(ServerRequestInterface $request) : ResponseInterface
     {
@@ -374,13 +375,14 @@ class RecipesController implements Controllable
     /**
      * Image upload method.
      *
+     * @param ServerRequestInterface $request
      * @param string $key
      *
      * @param string $object_name
      *
      * @return string
      */
-    public function uploadFile(ServerRequestInterface $request, $key, $object_name)
+    public function uploadFile(ServerRequestInterface $request, string $key, string $object_name)
     {
         $target_dir = "img/uploads/";
         $uploadedFiles = $request->getUploadedFiles();
@@ -406,9 +408,7 @@ class RecipesController implements Controllable
             echo "Sorry, your file was not uploaded.";
 // if everything is ok, try to upload file
         } else {
-            $object_name = str_replace(' ', '-', strtolower($object_name));
-            $object_name = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $object_name);
-            $object_name = preg_replace('/[^A-Za-z0-9\-]/', '', $object_name);
+            $object_name = Str::slug($object_name);
             $target_file = $target_dir . $object_name . '.' . $image_file_type;
             if (!move_uploaded_file($uploadedFiles[$key]->getStream()->getMetadata('uri'), $target_file)) {
                 return "Sorry, there was an error uploading your file.";
@@ -422,7 +422,8 @@ class RecipesController implements Controllable
     /**
      * Advanced search for recipes.
      *
-     * @return string
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
      */
     public function advancedSearch(ServerRequestInterface $request) : ResponseInterface
     {
@@ -479,7 +480,8 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
     /**
      * Recipes search.
      *
-     * @return string
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
      */
     public function search(ServerRequestInterface $request) : ResponseInterface
     {

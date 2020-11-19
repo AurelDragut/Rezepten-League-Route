@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\Modelable;
+use Illuminate\Support\Str;
 
 class Recipe extends Model implements Modelable
 {
@@ -65,9 +66,7 @@ class Recipe extends Model implements Modelable
 
     public function save(): int
     {
-        $this->schnecke = str_replace(' ', '-', strtolower($this->name));
-        $this->schnecke = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $this->schnecke);
-        $this->schnecke = preg_replace('/[^A-Za-z0-9\-]/', '', $this->schnecke);
+        $this->schnecke = Str::slug($this->name);
         foreach ($this as $key => &$value) {
             if (in_array($key, Recipe::FILLABLE)) {
                 if (method_exists($this, 'related_' . $key . '_list')) {
@@ -84,9 +83,7 @@ class Recipe extends Model implements Modelable
 
     public function update():int
     {
-        $this->schnecke = str_replace(' ', '-', strtolower($this->name));
-        $this->schnecke = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $this->schnecke);
-        $this->schnecke = preg_replace('/[^A-Za-z0-9\-]/', '', $this->schnecke);
+        $this->schnecke = Str::slug($this->name);
         $key_values = [];
         foreach ($this as $key => $value) {
             if (in_array($key, Recipe::FILLABLE)) {
