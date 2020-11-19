@@ -302,7 +302,7 @@ class RecipesController implements Controllable
 
         foreach ($_FILES as $key => $value) {
             if ($_FILES[$key]["size"] > 0) {
-                $filePath = $this->uploadFile($key, $object->name);
+                $filePath = $this->uploadFile($request, $key, $object->name);
                 if ($filePath !== false) $object->$key = $filePath;
             }
         }
@@ -339,7 +339,7 @@ class RecipesController implements Controllable
 
         foreach ($_FILES as $key => $value) {
             if ($_FILES[$key]["size"] > 0) {
-                $file_path = $this->uploadFile($key, $object->name);
+                $file_path = $this->uploadFile($request, $key, $object->name);
                 if ($file_path !== false) $object->$key = $file_path;
             }
         }
@@ -380,16 +380,17 @@ class RecipesController implements Controllable
      *
      * @return string
      */
-    public function uploadFile($key, $object_name)
+    public function uploadFile(ServerRequestInterface $request, $key, $object_name)
     {
         $target_dir = "img/uploads/";
-        $target_file = $target_dir . basename($_FILES[$key]["name"]);
+        $uploadedFiles = $request->getUploadedFiles();
+        $target_file = $target_dir . basename($uploadedFiles[$key]->getClientFilename());
         $uploadOk = 1;
         $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
 // Check if image file is a actual image or fake image
         if (isset($_POST["submit"])) {
-            $check = getimagesize($_FILES["bild"]["tmp_name"]);
+            $check = getimagesize($uploadedFiles["bild"]["tmp_name"]);
             if ($check !== false) $uploadOk = 1; else $uploadOk = 0;
         }
 
@@ -409,7 +410,7 @@ class RecipesController implements Controllable
             $object_name = str_replace(['Ä', 'Ö', 'Ü', 'ä', 'ü', 'ö'], ['AE', 'OE', 'UE', 'ae', 'ue', 'oe'], $object_name);
             $object_name = preg_replace('/[^A-Za-z0-9\-]/', '', $object_name);
             $target_file = $target_dir . $object_name . '.' . $image_file_type;
-            if (!move_uploaded_file($_FILES["bild"]["tmp_name"], $target_file)) {
+            if (!move_uploaded_file($uploadedFiles[$key]->getStream()->getMetadata('uri'), $target_file)) {
                 return "Sorry, there was an error uploading your file.";
             } else {
                 return '/' . $target_file;

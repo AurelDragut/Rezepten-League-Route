@@ -210,9 +210,7 @@ abstract class Model
                     $name = explode(' - ', $relation);
                     $names[] = end($name);
                 }
-                $questionMarks = '';
-                for ($i=0;$i<count($names);$i++) $questionMarks .= '?,';
-                $questionMarks = rtrim($questionMarks, ',');
+                $questionMarks = str_repeat('?,', count($names) - 1) . '?';
                 $sql = "DELETE FROM " . $relation_pair['relations_table'] . " 
             WHERE " . $relation_pair['own_field'] . " = '$this->nr' 
             and " . $relation_pair['relation_field'] . " not in 

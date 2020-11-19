@@ -12,7 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 class Container
 {
-    private \DI\Container $container;
+    public \DI\Container $container;
     private ContainerBuilder $builder;
 
     public function __construct()
