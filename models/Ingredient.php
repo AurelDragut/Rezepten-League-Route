@@ -33,7 +33,7 @@ class Ingredient extends Model implements Modelable
         return $list;
     }
 
-    public static function getInstance ()
+    public static function getInstance()
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
@@ -98,5 +98,4 @@ class Ingredient extends Model implements Modelable
         $this->getDatabase()->Remove($query, [$this->nr]);
         header('Location:/admin/ingredients/index');
     }
-
 }

@@ -6,7 +6,7 @@ use Laminas\Diactoros\Response\RedirectResponse;
 
 class User extends Model implements Modelable
 {
-	const TABLE = 'users';
+    const TABLE = 'users';
     public const FILLABLE = ['name','username','email','password','confirm_password'];
     public const LIST = ['name','username','email','password','confirm_password'];
     public static object $_instance;
@@ -14,8 +14,7 @@ class User extends Model implements Modelable
 
     public function rules($method): array
     {
-
-            $rules = [
+        $rules = [
                 'name' => [self::RULE_REQUIRED],
                 'username' => [self::RULE_REQUIRED],
                 'email' => [self::RULE_REQUIRED, self::RULE_EMAIL]
@@ -27,7 +26,7 @@ class User extends Model implements Modelable
         return $rules;
     }
 
-    public static function getInstance ()
+    public static function getInstance()
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
@@ -58,7 +57,9 @@ class User extends Model implements Modelable
                         continue;
                     } else {
                         $keys[] = $key;
-                        if ($key == 'password') $value = password_hash($value, PASSWORD_BCRYPT);
+                        if ($key == 'password') {
+                            $value = password_hash($value, PASSWORD_BCRYPT);
+                        }
                         $values[] = $value;
                     }
                 }
@@ -84,7 +85,9 @@ class User extends Model implements Modelable
                         continue;
                     } else {
                         $keys[] = $key;
-                        if ($key == 'password') $value = password_hash($value, PASSWORD_BCRYPT);
+                        if ($key == 'password') {
+                            $value = password_hash($value, PASSWORD_BCRYPT);
+                        }
                         $values[] = $value;
                     }
                 }
@@ -107,17 +110,18 @@ class User extends Model implements Modelable
         header('Location:/admin/users/index');
     }
 
-    public function login($login) {
+    public function login($login)
+    {
         $query = "select * from `users` where `email` = ?";
         $user = $this->getDatabase()->Select($query, [$login['email']], self::class);
         if (password_verify($login['password'], $user->password)) {
             if (isset($login['keep_me_logged_in'])) {
-				$cookie_lifetime = time()+3600*24*30*12*100;
+                $cookie_lifetime = time()+3600*24*30*12*100;
             } else {
-				$cookie_lifetime = time()+3600;
-			}
-			setcookie('logged_in', true, $cookie_lifetime,'/');
-			setcookie('cookie_lifetime', $cookie_lifetime, $cookie_lifetime,'/');
+                $cookie_lifetime = time()+3600;
+            }
+            setcookie('logged_in', true, $cookie_lifetime, '/');
+            setcookie('cookie_lifetime', $cookie_lifetime, $cookie_lifetime, '/');
             header('Location:/');
             die();
         } else {

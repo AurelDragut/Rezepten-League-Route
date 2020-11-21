@@ -2,11 +2,18 @@
 
 require_once '../vendor/autoload.php';
 
+phpinfo();
+die();
+
 use App\Middlewares\AuthMiddleware;
 use League\Route\RouteGroup;
 
 $request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
-    $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
+    $_SERVER,
+    $_GET,
+    $_POST,
+    $_COOKIE,
+    $_FILES
 );
 
 $router = new League\Route\Router;

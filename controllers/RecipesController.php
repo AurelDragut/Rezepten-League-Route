@@ -16,8 +16,11 @@ class RecipesController implements Controllable
     public string $model = Recipe::class;
     public string $table = 'recipes';
 
-    public function getDatabase() {
-        if (!isset($this->container)) $this->container = new Container();
+    public function getDatabase()
+    {
+        if (!isset($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container->container->get('App\Classes\DatabaseConnectable');
     }
 
@@ -86,7 +89,9 @@ class RecipesController implements Controllable
             $object['nr'] = $object_list->getNr();
             foreach ($object_list as $key => $value) {
                 $object['nr'] = $object_list->getNr();
-                if (in_array($key, Recipe::LIST)) $object[$key] = $value;
+                if (in_array($key, Recipe::LIST)) {
+                    $object[$key] = $value;
+                }
             }
             $methods = get_class_methods($object_list);
             foreach ($methods as $method) {
@@ -186,7 +191,9 @@ class RecipesController implements Controllable
         $formular['fields'] = $this->formFields();
 
         $formular['action'] = $action;
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body     = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -207,16 +214,18 @@ class RecipesController implements Controllable
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
-            if (in_array($value['Field'], Recipe::FILLABLE)) $fields[] = $value;
+            if (in_array($value['Field'], Recipe::FILLABLE)) {
+                $fields[] = $value;
+            }
         }
 
         if (in_array('password', Recipe::FILLABLE)) {
-            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
         }
 
         foreach (Recipe::FILLABLE as $method_field) {
             if (method_exists(Recipe::class, 'related_' . $method_field . '_list')) {
-                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
             }
         }
 
@@ -279,7 +288,9 @@ class RecipesController implements Controllable
         $formular['action'] = '/admin/' . $this->table . '/update/' . $nr;
         $formular['inhalt'] = (array)$object;
 
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -304,7 +315,9 @@ class RecipesController implements Controllable
         foreach ($_FILES as $key => $value) {
             if ($_FILES[$key]["size"] > 0) {
                 $filePath = $this->uploadFile($request, $key, $object->name);
-                if ($filePath !== false) $object->$key = $filePath;
+                if ($filePath !== false) {
+                    $object->$key = $filePath;
+                }
             }
         }
 
@@ -341,7 +354,9 @@ class RecipesController implements Controllable
         foreach ($_FILES as $key => $value) {
             if ($_FILES[$key]["size"] > 0) {
                 $file_path = $this->uploadFile($request, $key, $object->name);
-                if ($file_path !== false) $object->$key = $file_path;
+                if ($file_path !== false) {
+                    $object->$key = $file_path;
+                }
             }
         }
         if ($object->validate('update')) {
@@ -390,23 +405,27 @@ class RecipesController implements Controllable
         $uploadOk = 1;
         $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-// Check if image file is a actual image or fake image
+        // Check if image file is a actual image or fake image
         if (isset($_POST["submit"])) {
-            $check = getimagesize($uploadedFiles["bild"]["tmp_name"]);
-            if ($check !== false) $uploadOk = 1; else $uploadOk = 0;
+            $check = getimagesize($uploadedFiles[$key]->getStream()->getMetadata('uri'));
+            if ($check !== false) {
+                $uploadOk = 1;
+            } else {
+                $uploadOk = 0;
+            }
         }
 
-// Allow certain file formats
+        // Allow certain file formats
         if ($image_file_type != "jpg" && $image_file_type != "png" && $image_file_type != "jpeg"
             && $image_file_type != "gif") {
             echo "$image_file_type Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
             $uploadOk = 0;
         }
 
-// Check if $uploadOk is set to 0 by an error
+        // Check if $uploadOk is set to 0 by an error
         if ($uploadOk == 0) {
             echo "Sorry, your file was not uploaded.";
-// if everything is ok, try to upload file
+        // if everything is ok, try to upload file
         } else {
             $object_name = Str::slug($object_name);
             $target_file = $target_dir . $object_name . '.' . $image_file_type;
@@ -439,22 +458,38 @@ class RecipesController implements Controllable
  join ingredients on ingredients_recipes.ingredient_nr = ingredients.nr 
 where ($this->table.name like ? or vorbereitung_anweisungen like ? 
  or amount like ? or ingredients.name like ?)";
-            if (isset($search['portionsnummern'])) $sql .= " and (portionsnummern = ?)";
-            if (isset($search['vorbereitungszeit'])) $sql .= " and (vorbereitungszeit = ?)";
-            if (isset($search['vorbereitung_schwierigkeit'])) $sql .= " and (vorbereitung_schwierigkeit = ?)";
-            if (isset($search['ingredient'])) $sql .= " and ingredients.name = ?";
+            if (isset($search['portionsnummern'])) {
+                $sql .= " and (portionsnummern = ?)";
+            }
+            if (isset($search['vorbereitungszeit'])) {
+                $sql .= " and (vorbereitungszeit = ?)";
+            }
+            if (isset($search['vorbereitung_schwierigkeit'])) {
+                $sql .= " and (vorbereitung_schwierigkeit = ?)";
+            }
+            if (isset($search['ingredient'])) {
+                $sql .= " and ingredients.name = ?";
+            }
             $sql .= " group by $this->table.name";
             $params = [];
             $params[] = "%".$search['keyword']."%";
             $params[] = "%".$search['keyword']."%";
             $params[] = "%".$search['keyword']."%";
             $params[] = "%".$search['keyword']."%";
-            if (isset($search['portionsnummern'])) $params[] = $search['portionsnummern'];
-            if (isset($search['vorbereitungszeit'])) $params[] = $search['vorbereitungszeit'];
-            if (isset($search['vorbereitung_schwierigkeit'])) $params[] = $search['vorbereitung_schwierigkeit'];
-            if (isset($search['ingredient'])) $params[] = $search['ingredient'];
+            if (isset($search['portionsnummern'])) {
+                $params[] = $search['portionsnummern'];
+            }
+            if (isset($search['vorbereitungszeit'])) {
+                $params[] = $search['vorbereitungszeit'];
+            }
+            if (isset($search['vorbereitung_schwierigkeit'])) {
+                $params[] = $search['vorbereitung_schwierigkeit'];
+            }
+            if (isset($search['ingredient'])) {
+                $params[] = $search['ingredient'];
+            }
 
-            $content = $this->getDatabase()->MultiSelect($sql,$params);
+            $content = $this->getDatabase()->MultiSelect($sql, $params);
         }
 
         $formular = [];
@@ -469,8 +504,10 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
             $formular['zutaten'][] = $result['name'];
         }
 
-        $body = View::getInstance()->render('advanced-search.html.twig',
-            ['content' => $content, 'formular' => $formular, 'search' => $search]);
+        $body = View::getInstance()->render(
+            'advanced-search.html.twig',
+            ['content' => $content, 'formular' => $formular, 'search' => $search]
+        );
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -489,7 +526,7 @@ where ($this->table.name like ? or vorbereitung_anweisungen like ?
         if (isset($request->getQueryParams()['search'])) {
             $search = "%".$request->getQueryParams()['search']."%";
             $sql = "select `$this->table`.* from `$this->table` join `ingredients_recipes` on `$this->table`.`nr` = `ingredients_recipes`.`recipe_nr` join `ingredients` on `ingredients_recipes`.`ingredient_nr` = `ingredients`.`Nr` where `$this->table`.`name` like ? or `vorbereitung_anweisungen` like ? or `amount` like ? or `ingredients`.`name` like ? group by `$this->table`.`name`";
-            $content = $this->getDatabase()->MultiSelect($sql,[$search, $search, $search, $search]);
+            $content = $this->getDatabase()->MultiSelect($sql, [$search, $search, $search, $search]);
         }
         $body = View::getInstance()->render('search.html.twig', ['content' => $content]);
         $response = new Response;

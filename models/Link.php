@@ -34,7 +34,7 @@ class Link extends Model implements Modelable
         ];
     }
 
-    public static function getInstance ()
+    public static function getInstance()
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
@@ -51,7 +51,11 @@ class Link extends Model implements Modelable
         foreach ($menu_items as $menu_item) {
             $parent = $menu_item['parent'];
             $nr = $menu_item['nr'];
-            if ($parent == 0) $items[(int)$nr] = $menu_item; else $items[(int)$parent]['children'][] = $menu_item;
+            if ($parent == 0) {
+                $items[(int)$nr] = $menu_item;
+            } else {
+                $items[(int)$parent]['children'][] = $menu_item;
+            }
         }
         return $items;
     }
@@ -116,5 +120,4 @@ class Link extends Model implements Modelable
         $this->getDatabase()->Remove($query, [$this->nr]);
         header('Location:/admin/links/index');
     }
-
 }

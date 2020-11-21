@@ -42,7 +42,9 @@ class Recipe extends Model implements Modelable
                 'fett' => [self::RULE_REQUIRED],
                 'kh' => [self::RULE_REQUIRED]
             ];
-        if ($method == 'create') { $rules['bild'] = [self::RULE_REQUIRED]; }
+        if ($method == 'create') {
+            $rules['bild'] = [self::RULE_REQUIRED];
+        }
         return $rules;
     }
 

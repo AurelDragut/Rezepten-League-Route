@@ -23,11 +23,16 @@ class Container
         $this->container = $this->builder->build();
     }
 
-    private function setDefinitions() {
+    private function setDefinitions()
+    {
         return [
-            'request' => function() {
+            'request' => function () {
                 return ServerRequestFactory::fromGlobals(
-                    $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
+                    $_SERVER,
+                    $_GET,
+                    $_POST,
+                    $_COOKIE,
+                    $_FILES
                 );
             },
             'response' => new Response(),
@@ -36,7 +41,7 @@ class Container
                 $database = new Database();
                 return $database;
             },
-            Environment::class => function() {
+            Environment::class => function () {
                 $loader = new FilesystemLoader(__DIR__ . '/templates');
                 return new Environment($loader);
             },

@@ -14,8 +14,11 @@ class IngredientsController implements Controllable
     public string $model = Ingredient::class;
     public string $table = 'ingredients';
 
-    public function getDatabase() {
-        if (!isset($this->container)) $this->container = new Container();
+    public function getDatabase()
+    {
+        if (!isset($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container->container->get('App\Classes\DatabaseConnectable');
     }
 
@@ -151,7 +154,9 @@ class IngredientsController implements Controllable
         $formular['fields'] = $this->formFields();
 
         $formular['action'] = $action;
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -167,16 +172,18 @@ class IngredientsController implements Controllable
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
-            if (in_array($value['Field'], Ingredient::FILLABLE)) $fields[] = $value;
+            if (in_array($value['Field'], Ingredient::FILLABLE)) {
+                $fields[] = $value;
+            }
         }
 
         if (in_array('password', Ingredient::FILLABLE)) {
-            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
         }
 
         foreach (Ingredient::FILLABLE as $method_field) {
             if (method_exists(Ingredient::class, 'related_' . $method_field . '_list') && !in_array($method_field, Ingredient::HIDDEN)) {
-                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
             }
         }
 
@@ -232,7 +239,9 @@ class IngredientsController implements Controllable
         $formular['action'] = '/admin/'.$this->table.'/update/' . $nr;
         $formular['inhalt'] = (array)$object;
 
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;

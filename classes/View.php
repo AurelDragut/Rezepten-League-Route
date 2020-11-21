@@ -11,7 +11,8 @@ class View
     public object $twig;
     private static object $instance;
 
-    private function __construct(){
+    private function __construct()
+    {
         $loader = new FilesystemLoader(__DIR__ . '/../templates');
         $this->twig = new Environment($loader, ['debug' => true]);
         $this->twig->addExtension(new DebugExtension());
@@ -32,8 +33,8 @@ class View
         return self::$instance;
     }
 
-    public function render($template, $params):string {
-
+    public function render($template, $params):string
+    {
         return $this->twig->render($template, $params);
     }
 }

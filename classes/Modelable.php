@@ -3,7 +3,6 @@
 
 namespace App\Classes;
 
-
 interface Modelable
 {
     public function rules($method): array;

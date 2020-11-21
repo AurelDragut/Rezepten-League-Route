@@ -19,15 +19,20 @@ abstract class Model
     public int $parent;
     private Container $container;
 
-    public function getDatabase() {
-        if (!isset($this->container)) $this->container = new Container();
+    public function getDatabase()
+    {
+        if (!isset($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container->container->get('App\Classes\DatabaseConnectable');
     }
 
     public function validate($method = 'create'):bool
     {
         foreach ($this->rules($method) as $attribute => $rules) {
-            if (isset($this->{$attribute})) $value = $this->{$attribute};
+            if (isset($this->{$attribute})) {
+                $value = $this->{$attribute};
+            }
 
             foreach ($rules as $rule) {
                 $rule_name = $rule;
@@ -121,7 +126,11 @@ abstract class Model
 
     public function all($table, $fields = []):object
     {
-        if (count($fields) > 0) $fieldsList = implode(',',$fields); else $fieldsList = '*';
+        if (count($fields) > 0) {
+            $fieldsList = implode(',', $fields);
+        } else {
+            $fieldsList = '*';
+        }
         $this->setStatement("select $fieldsList from $table");
         $this->setParameters([]);
         return $this;
@@ -131,22 +140,24 @@ abstract class Model
     {
         $items = [];
         foreach ($params as $param) {
-            $item = explode(' ',$param);
+            $item = explode(' ', $param);
             $arguments['params'][] = $item[2];
             $this->setParameters($arguments['params']);
             $item[2] = '?';
-            $items[] = implode(' ',$item);
+            $items[] = implode(' ', $item);
         }
         $statement = $this->getStatement() . ' WHERE ' . implode($separator, $items)." ";
         $this->setStatement($statement);
         return $this;
     }
 
-    public function get($class = '') {
+    public function get($class = '')
+    {
         return $this->getDatabase()->MultiSelect($this->getStatement(), $this->getParameters(), $class);
     }
 
-    public function first($class = '') {
+    public function first($class = '')
+    {
         return $this->getDatabase()->Select($this->getStatement(), $this->getParameters(), $class);
     }
 

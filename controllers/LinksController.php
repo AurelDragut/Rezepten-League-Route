@@ -14,8 +14,11 @@ class LinksController implements Controllable
     public string $model = Link::class;
     public string $table = 'links';
 
-    public function getDatabase() {
-        if (!isset($this->container)) $this->container = new Container();
+    public function getDatabase()
+    {
+        if (!isset($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container->container->get('App\Classes\DatabaseConnectable');
     }
 
@@ -143,7 +146,9 @@ class LinksController implements Controllable
         $formular['fields'] = $this->formFields();
 
         $formular['action'] = $action;
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -175,7 +180,9 @@ class LinksController implements Controllable
         $formular['action'] = '/admin/'.$this->table.'/update/' . $nr;
         $formular['inhalt'] = (array)$object;
 
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -240,16 +247,18 @@ class LinksController implements Controllable
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
-            if (in_array($value['Field'], Link::FILLABLE)) $fields[] = $value;
+            if (in_array($value['Field'], Link::FILLABLE)) {
+                $fields[] = $value;
+            }
         }
 
         if (in_array('password', Link::FILLABLE)) {
-            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
         }
 
         foreach (Link::FILLABLE as $method_field) {
             if (method_exists(Link::class, 'related_' . $method_field . '_list')) {
-                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
             }
         }
 

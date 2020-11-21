@@ -9,7 +9,6 @@ use mysqli;
 
 class Database implements DatabaseConnectable
 {
-
     private static $instance;
     private mysqli $connection;
     private $dbHost;
@@ -60,7 +59,8 @@ class Database implements DatabaseConnectable
             array_unshift($parameters, $type);
             call_user_func_array(
                 array($stmt, 'bind_param'),
-                $parameters);
+                $parameters
+            );
         }
         $stmt->execute();
 
@@ -78,9 +78,7 @@ class Database implements DatabaseConnectable
     public function Insert($statement = "", $parameters = [])
     {
         try {
-
             $this->executeStatement($statement, $parameters);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -105,7 +103,6 @@ class Database implements DatabaseConnectable
     public function MultiSelect($statement = "", $parameters = [], string $class = '')
     {
         try {
-
             $stmt = $this->executeStatement($statement, $parameters);
             if ($class !== '') {
                 $objects = [];
@@ -126,8 +123,7 @@ class Database implements DatabaseConnectable
                 return $objects;
             }
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } catch
-        (Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
@@ -135,9 +131,7 @@ class Database implements DatabaseConnectable
     public function Update($statement = "", $parameters = [])
     {
         try {
-
             $this->executeStatement($statement, $parameters);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -146,9 +140,7 @@ class Database implements DatabaseConnectable
     public function Remove($statement = "", $parameters = [])
     {
         try {
-
             $this->executeStatement($statement, $parameters);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

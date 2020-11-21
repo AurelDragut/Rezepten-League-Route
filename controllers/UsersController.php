@@ -3,7 +3,6 @@
 
 namespace App\Controllers;
 
-
 use App\Classes\Container;
 use App\Classes\Controllable;
 use App\Classes\View;
@@ -17,8 +16,11 @@ class UsersController implements Controllable
     public string $model = User::class;
     public string $table = 'users';
 
-    public function getDatabase() {
-        if (!isset($this->container)) $this->container = new Container();
+    public function getDatabase()
+    {
+        if (!isset($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container->container->get('App\Classes\DatabaseConnectable');
     }
 
@@ -30,7 +32,6 @@ class UsersController implements Controllable
         foreach ($objects_list as $object_list) {
             $object['nr'] = $object_list->getNr();
             foreach ($object_list as $key => $value) {
-
                 if (in_array($key, User::FILLABLE)) {
                     $method = 'related_' . $key . '_list';
                     if (method_exists($object_list, $method)) {
@@ -148,7 +149,9 @@ class UsersController implements Controllable
         $formular['fields'] = $this->formFields();
 
         $formular['action'] = $action;
-        if (isset($errors)) $formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -181,7 +184,9 @@ class UsersController implements Controllable
         $formular['action'] = '/admin/'.$this->table.'/update/' . $nr;
         $formular['inhalt'] = (array)$object;
 
-        if (isset($errors))$formular['errors'] = $errors;
+        if (isset($errors)) {
+            $formular['errors'] = $errors;
+        }
 
         $body = View::getInstance()->render('formular.html.twig', ['formular' => $formular]);
         $response = new Response;
@@ -247,16 +252,18 @@ class UsersController implements Controllable
 
         $fields = [];
         foreach ($table_fields as $key => $value) {
-            if (in_array($value['Field'], User::FILLABLE)) $fields[] = $value;
+            if (in_array($value['Field'], User::FILLABLE)) {
+                $fields[] = $value;
+            }
         }
 
         if (in_array('password', User::FILLABLE)) {
-            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+            $fields[] = array("Field" => "confirm_password", "Type" => "varchar(255)", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
         }
 
         foreach (User::FILLABLE as $method_field) {
             if (method_exists(User::class, 'related_' . $method_field . '_list')) {
-                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => NULL, "Extra" => "");
+                $fields[] = array("Field" => $method_field, "Type" => "text", "Null" => "NO", "Key" => "", "Default" => null, "Extra" => "");
             }
         }
 
@@ -324,9 +331,10 @@ class UsersController implements Controllable
         return $response->withStatus(200);
     }
 
-    public function logout() {
-        setcookie('logged_in',false, time()-3600,'/');
-        setcookie('cookie_lifetime', false, time()-3600,'/');
+    public function logout()
+    {
+        setcookie('logged_in', false, time()-3600, '/');
+        setcookie('cookie_lifetime', false, time()-3600, '/');
         header('Location:/');
     }
     public function checkLoginCookie(): bool
@@ -335,8 +343,9 @@ class UsersController implements Controllable
             setcookie('cookie_lifetime', $_COOKIE['cookie_lifetime'], $_COOKIE['cookie_lifetime'], '/');
             setcookie('logged_in', true, $_COOKIE['cookie_lifetime'], '/');
             return true;
-        } else header('Location:/login');
+        } else {
+            header('Location:/login');
+        }
         return false;
     }
-
 }
